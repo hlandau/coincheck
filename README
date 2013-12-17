@@ -1,0 +1,21 @@
+coincheck
+=========
+IRC ticker bot written in Go. Uses Bitcoinity's HTML5 server-sent-event JSON
+HTTP feed for live updates without polling.
+
+This is the first thing I've written in Go, so it's probably not very well
+written.
+
+The IRC implementation is fairly basic and may need tweaking for different
+networks. Tested with Charybdis ircd and Atheme services.
+
+Usage
+-----
+Rename ticker.json.example to ticker.json and edit it to configure connection
+details. Run `go build` to build and run `./irc`.
+
+Licence
+-------
+Licenced under the MIT License. Patches welcome.
+
+© 2013 Hugo Landau <hlandau@devever.net>
