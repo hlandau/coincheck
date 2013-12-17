@@ -23,7 +23,7 @@ for Bitcoinity's ticker feed.
 Usage
 -----
 Rename ticker.json.example to ticker.json and edit it to configure connection
-details. Run `go build` to build and run `./irc`.
+details. Run `go build` to build and run `./coincheck`.
 
 TODO
 ----
