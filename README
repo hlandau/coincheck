@@ -9,10 +9,28 @@ written.
 The IRC implementation is fairly basic and may need tweaking for different
 networks. Tested with Charybdis ircd and Atheme services.
 
+Customization
+-------------
+Currently outputs only the 'last' price for USD, but should be very easy to
+customise. The entire JSON output of the feed is available.
+
+Design
+------
+Features a custom HTTP implementation, because go's HTTP implementation didn't
+seem suitable. The implementation is ultra-minimal and is currently hardcoded
+for Bitcoinity's ticker feed.
+
 Usage
 -----
 Rename ticker.json.example to ticker.json and edit it to configure connection
 details. Run `go build` to build and run `./irc`.
+
+TODO
+----
+- Add resilience for when the feed dries up. Occasionally a stream stops
+  sending events.
+- Add resilience for when disconnected from IRC.
+- Make feed URL configurable.
 
 Licence
 -------
