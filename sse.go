@@ -7,16 +7,21 @@ import "fmt"
 import "net"
 import "strings"
 import "io"
-//import "log"
+import "time"
+import "log"
 
 const sPreHeaders = 0
 const sLength     = 1
 const sData       = 2
 const sPostChunk  = 3
 
+const sTimeout    = 30*time.Second
+const sRetryDelay = 10*time.Second
+
 type SSEConnection struct {
   url string
   evChannel chan []byte
+  workersActive int
 }
 
 func (self *SSEConnection) GetEventChannel() chan []byte {
@@ -49,12 +54,36 @@ func (self *SSEConnection) parseChunk(chunk []byte) error {
   }
 }
 
+func (self *SSEConnection) sseRetryWorker() error {
+  time.Sleep(sRetryDelay)
+  return self.sseWorker()
+}
+
+func (self *SSEConnection) workerStarted() {
+  if self.workersActive != 0 {
+    log.Panicf("excess workers (%d)", self.workersActive)
+  }
+  self.workersActive += 1
+}
+
+func (self *SSEConnection) workerExited() {
+  self.workersActive -= 1
+  if self.workersActive == 0 {
+    go self.sseRetryWorker()
+  }
+}
+
 func (self *SSEConnection) sseWorker() error {
+  self.workerStarted()
+  defer self.workerExited()
+
   conn, err := net.Dial("tcp", "bitcoinity.org:80")
   if err != nil {
     return err
   }
 
+
+  conn.SetDeadline(time.Now().Add(sTimeout))
   /* /ev/markets/markets_$EXCHANGE_$CURRENCY?_=948734803280
    * EXCHANGE := mtgox / btcchina / btce / bitstamp / bitfinex
    *           / bitcurex / cavirtex / kraken / localbitcoins
@@ -79,6 +108,7 @@ func (self *SSEConnection) sseWorker() error {
   length := 0
 
   for {
+    conn.SetDeadline(time.Now().Add(sTimeout))
     switch state {
       case sPreHeaders:
         s, err := br.ReadString('\n')
@@ -131,6 +161,7 @@ func SSE(url string) *SSEConnection {
   c := &SSEConnection{
     url: url,
     evChannel: ch,
+    workersActive: 0,
   }
 
   go c.sseWorker()

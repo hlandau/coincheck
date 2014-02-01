@@ -83,10 +83,13 @@ func (self *Connection) handleEvent(ev *Event) error {
       // some ircds expect a successful pong response before
       // sending 001, so we do this directly.
       self.bw.WriteString(fmt.Sprintf("PONG :%s\n", ev.Message))
-      err := self.bw.Flush()
-      if err != nil {
-        return err
-      }
+    } else {
+      self.bw.WriteString(fmt.Sprintf("PONG\n"))
+    }
+
+    err := self.bw.Flush()
+    if err != nil {
+      return err
     }
   } else if (ev.Command == "NOTICE" &&
       ev.SNick == "NickServ" &&

@@ -4,5 +4,5 @@
   "irc_nickname": "nickname",
   "irc_password": "nickserv-password",
   "irc_server"  : "irc.somenetwork.net:6667",
-  "irc_channel" : "#channel",
+  "irc_channel" : "#channel"
 }
